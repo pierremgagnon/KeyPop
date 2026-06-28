@@ -76,14 +76,49 @@ function renderGate() {
 
 function applyThemeDefault() { if (!state.profile) document.body.dataset.theme = 'day'; }
 
-async function createProfileFlow() {
-  const name = prompt('Prénom de l\u2019élève :');
-  if (!name || !name.trim()) return;
-  const classe = prompt('Classe (facultatif) :') || '';
-  const p = newProfile(name, classe);
-  state.profiles.push(p);
-  await saveProfiles(state.profiles);
-  selectProfile(p.id);
+function createProfileFlow() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h2>Nouveau profil</h2>
+      <label class="modal-label">Prénom de l'élève
+        <input id="mName" class="modal-input" type="text" placeholder="ex. : Léa" autocomplete="off">
+      </label>
+      <label class="modal-label">Classe <span class="muted">(facultatif)</span>
+        <input id="mClasse" class="modal-input" type="text" placeholder="ex. : CE2">
+      </label>
+      <div class="modal-actions">
+        <button class="primary" id="mOk">Créer le profil</button>
+        <button class="ghost" id="mCancel">Annuler</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const nameInput = overlay.querySelector('#mName');
+  const classeInput = overlay.querySelector('#mClasse');
+  nameInput.focus();
+
+  function close() { document.body.removeChild(overlay); }
+
+  async function confirm() {
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); return; }
+    const classe = classeInput.value.trim();
+    close();
+    const p = newProfile(name, classe);
+    state.profiles.push(p);
+    await saveProfiles(state.profiles);
+    selectProfile(p.id);
+  }
+
+  overlay.querySelector('#mOk').addEventListener('click', confirm);
+  overlay.querySelector('#mCancel').addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  overlay.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') confirm();
+    if (e.key === 'Escape') close();
+  });
 }
 
 function selectProfile(id) {
