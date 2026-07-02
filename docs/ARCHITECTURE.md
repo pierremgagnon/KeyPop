@@ -6,7 +6,7 @@ Un seul produit, deux cibles, **un seul codebase** :
 
 ```
                 ┌─────────────────────────────┐
-                │     Frontend  (app/)         │   HTML / CSS / JS (modules ES)
+                │     Frontend  (web/app/)         │   HTML / CSS / JS (modules ES)
                 │  UI + pédagogie + moteur     │   → identique web & desktop
                 └──────────────┬──────────────┘
                                │ storage.js choisit la couche
@@ -17,11 +17,11 @@ Un seul produit, deux cibles, **un seul codebase** :
    (fichier disque, PDF, widget)         (profils dans le navigateur)
 ```
 
-`app/storage.js` détecte l'environnement : en application Tauri il appelle les commandes Rust
+`web/app/storage.js` détecte l'environnement : en application Tauri il appelle les commandes Rust
 via `window.__TAURI__.core.invoke(...)`, sinon il retombe sur `localStorage`. **Aucune autre partie
 du frontend ne sait sur quelle plateforme elle tourne.**
 
-## Frontend (`app/`)
+## Frontend (`web/app/`)
 
 | Fichier         | Rôle |
 |-----------------|------|
@@ -53,7 +53,7 @@ Commandes exposées (`src/main.rs`, `invoke_handler`) :
 - **Bilan PDF** (`export_report`) : crate `printpdf` ou `genpdf`, ou impression du DOM côté frontend
   puis sauvegarde via Rust. Données = `profile.history` + agrégats.
 - **Widget bureau** : seconde fenêtre Tauri (`WebviewWindowBuilder`), `always_on_top`, sans décor,
-  chargeant `app/widget.html` (à créer) — réutilise `storage.js`.
+  chargeant `web/app/widget.html` (à créer) — réutilise `storage.js`.
 - **Dictée audio** : Web Speech API (`speechSynthesis`) côté frontend, voix `fr-FR`. Aucune dépendance Rust.
 - **Détection clavier renforcée** : si l'API web ne suffit pas, exposer une commande Rust spécifique OS
   (Windows `GetKeyboardLayout`, macOS `TISCopyCurrentKeyboardInputSource`).
@@ -65,7 +65,7 @@ Commandes exposées (`src/main.rs`, `invoke_handler`) :
 - macOS : `.dmg` / `.app`
 - Linux : `.deb` / `.AppImage`
 
-Le même dossier (`index.html` + `app/`) s'héberge tel quel comme **site web** statique.
+Le même dossier (`web/index.html` + `web/app/`) s'héberge tel quel comme **site web** statique.
 
 ## Données & RGPD
 

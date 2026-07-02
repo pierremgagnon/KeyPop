@@ -28,7 +28,7 @@ Le frontend utilise des modules ES → il faut le servir via HTTP (pas en `file:
 
 ```bash
 # n'importe quel serveur statique, p. ex. :
-python3 -m http.server 1420
+cd web && python3 -m http.server 1420
 # puis ouvrir http://localhost:1420
 ```
 
@@ -54,14 +54,15 @@ cargo tauri build
 
 ```
 keypop/
-├── index.html              # point d'entrée (web + frontend Tauri)
-├── app/                    # tout le frontend (UI + pédagogie), partagé web/desktop
-│   ├── app.js              # bootstrap, routage, rendu des écrans
-│   ├── storage.js          # profils : invoke() Rust si Tauri, sinon localStorage
-│   ├── keyboards.js        # dispositions AZERTY, codage par doigt, détection
-│   ├── typing.js           # moteur de session de frappe (précision, vitesse, score)
-│   ├── lessons.js          # niveaux & leçons
-│   └── styles.css          # thèmes jour / nuit
+├── web/                    # tout le frontend (UI + pédagogie), partagé web/desktop
+│   ├── index.html          # point d'entrée (web + frontend Tauri)
+│   └── app/
+│       ├── app.js          # bootstrap, routage, rendu des écrans
+│       ├── storage.js      # profils : invoke() Rust si Tauri, sinon localStorage
+│       ├── keyboards.js    # dispositions AZERTY, codage par doigt, détection
+│       ├── typing.js       # moteur de session de frappe (précision, vitesse, score)
+│       ├── lessons.js      # niveaux & leçons
+│       └── styles.css      # thèmes jour / nuit
 ├── src-tauri/              # coquille Rust / Tauri
 │   ├── Cargo.toml
 │   ├── tauri.conf.json
