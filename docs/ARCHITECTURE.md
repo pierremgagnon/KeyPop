@@ -29,8 +29,32 @@ du frontend ne sait sur quelle plateforme elle tourne.**
 | `typing.js`     | `TypingSession` : avance caractère par caractère, **reste sur l'erreur** (précision avant vitesse), calcule précision / mots-min / score. |
 | `keyboards.js`  | Rangées AZERTY (PC/Mac), map touche → doigt + couleur, `detectLayout()` via `navigator.keyboard.getLayoutMap()`. |
 | `lessons.js`    | Niveaux (repos → haut → milieu → bas → mots → bigrammes → phrases) et leurs leçons. |
-| `storage.js`    | Profils & historique (Tauri ou localStorage). |
+| `paths.js`      | Chemins d'exercices personnalisés : modèle de données, catalogue (embarqué + GitHub), import/export JSON. |
+| `storage.js`    | Profils & historique (Tauri ou localStorage), réglages narrateur/praticien/catalogue (localStorage). |
 | `styles.css`    | Variables de thème jour / nuit. |
+
+### Chemins personnalisés (espace ergothérapeute)
+
+Un **chemin** est une suite d'exercices texte libre créée par le praticien (écran `#/practitioner`,
+sans mot de passe — accessible depuis un lien discret sur l'écran titre), avec narration
+activable/désactivable par exercice. Modèle JSON (`paths.js`) :
+
+```json
+{ "id": "ferme-ab12", "title": "…", "version": 1,
+  "exercises": [{ "text": "…", "narrator": true }] }
+```
+
+- **Export** : `Blob` + `<a download>` (aucune commande Rust — fonctionne pareil en site web et
+  webview Tauri).
+- **Import élève** (écran `#/home`) : fichier JSON (`<input type=file>` + `FileReader`) ou
+  catalogue (`#/catalogue`), stocké dans `profile.paths[]` ; `profile.activePathId` sélectionne le
+  chemin actif (`null` = progression standard `LEVELS`).
+- **Catalogue** : embarqué dans `web/catalogue/` (fonctionne hors-ligne), avec un bouton « mettre à
+  jour » qui va chercher `web/catalogue/` sur `raw.githubusercontent.com` — jamais automatique.
+  Les chemins déjà importés se mettent à jour par `id` + `version` ; la progression en cours est
+  conservée sauf choix contraire de l'élève.
+- **Narrateur** : un interrupteur global côté écran titre (`keypop.narratorGlobal`, localStorage)
+  coupe toute narration ; dans un chemin, chaque exercice impose ensuite son propre réglage.
 
 ### Détection clavier
 

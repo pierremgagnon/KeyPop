@@ -5,6 +5,9 @@ pensé pour un usage en **ergothérapie** et en autonomie.
 
 - 🧩 **Adapté DYS** : priorité à la précision avant la vitesse, progression en petits modules
   répétables, codage couleur par doigt, dictée audio, police OpenDyslexic.
+- 🗂️ **Espace ergothérapeute** : créer des chemins d'exercices sur mesure (texte libre, narration
+  activable par exercice), les exporter en JSON. L'élève les importe en un clic, depuis un fichier
+  ou depuis le [catalogue partagé](web/catalogue/) du repo.
 - ⌨️ **AZERTY natif** : détection automatique de la disposition (PC / Mac, 60 / 75 / 100 %).
 - 🔒 **Données 100 % locales** : aucun compte, aucune collecte, aucun serveur (RGPD par conception).
   Profils multiples par poste, retrouvés en un clic.
@@ -18,7 +21,8 @@ pensé pour un usage en **ergothérapie** et en autonomie.
 > n'ajoute que ce que le web ne peut pas faire : fichier de profil sur le disque, export PDF du bilan,
 > widget bureau, intégration système. Le même frontend se déploie tel quel comme **site web**.
 
-Voir [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) pour le détail.
+Voir [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) pour le détail technique, et
+[`docs/GUIDE.md`](docs/GUIDE.md) pour le guide d'utilisation (élèves, parents, ergothérapeutes).
 
 ## Lancer le projet
 

@@ -1,0 +1,13 @@
+{
+  "id": "phrases-du-quotidien",
+  "title": "Phrases du quotidien",
+  "description": "Courtes phrases de la vie de tous les jours, texte suivi.",
+  "version": 1,
+  "exercises": [
+    { "text": "je range mes affaires.", "narrator": true },
+    { "text": "le repas est prêt.", "narrator": true },
+    { "text": "on part à l'école.", "narrator": false },
+    { "text": "il pleut ce matin.", "narrator": false },
+    { "text": "le chat dort sur le tapis.", "narrator": true }
+  ]
+}

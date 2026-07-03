@@ -63,6 +63,7 @@ body[data-theme="night"] .primary { color: #16131F; }
 
 /* Gate */
 .gate { text-align: center; }
+.gate-top { display: flex; align-items: center; justify-content: space-between; }
 .profile-grid { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 30px; }
 .profile-card { width: 150px; padding: 22px 14px; border: none; background: var(--card); border-radius: 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--ink); }
 .profile-card .avatar { width: 54px; height: 54px; font-size: 22px; }
@@ -70,6 +71,8 @@ body[data-theme="night"] .primary { color: #16131F; }
 .profile-sub { font-size: 12px; color: var(--muted); }
 .profile-card.add { justify-content: center; border: 2px dashed var(--tray-border); background: transparent; }
 .plus { font-size: 30px; color: var(--accent); }
+.practitioner-link { display: inline-block; margin-top: 40px; text-decoration: none; opacity: .55; }
+.practitioner-link:hover { opacity: 1; }
 
 /* Home */
 .resume-card { margin-top: 22px; background: var(--accent-soft); border-radius: 22px; padding: 24px 26px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
@@ -124,9 +127,17 @@ body[data-theme="night"] .chip.on { background: #23352B; }
 
 .result { margin-top: 16px; background: var(--accent-soft); border-radius: 18px; padding: 22px 24px; }
 .result-title { font-family: var(--font-display); font-weight: 600; font-size: 22px; color: var(--accent); }
-.result-stats { display: flex; gap: 20px; margin: 10px 0 16px; color: var(--muted); }
-.result-stats b { color: var(--ink); font-size: 20px; }
+.result-stats { display: flex; flex-wrap: nowrap; align-items: baseline; gap: 16px; margin: 10px 0 16px; color: var(--muted); overflow-x: auto; }
+.result-stats b { color: var(--ink); font-size: 20px; white-space: nowrap; }
 .result-actions { display: flex; align-items: center; gap: 14px; }
+
+.key-stat { display: inline-flex; align-items: center; font-size: 14px; white-space: nowrap; }
+.key-stat b { font-size: 15px; margin-right: 4px; }
+.key-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; }
+.key-stat.fastest .key-dot { background: var(--ok); }
+.key-stat.slowest .key-dot { background: var(--accent); }
+.type-text .key-highlight-fastest { box-shadow: 0 0 0 2px var(--ok); border-radius: 6px; }
+.type-text .key-highlight-slowest { box-shadow: 0 0 0 2px var(--accent); border-radius: 6px; }
 
 /* Stats */
 .panel { margin-top: 16px; background: var(--card); border-radius: 18px; padding: 20px 22px; box-shadow: var(--shadow); }
@@ -136,6 +147,33 @@ body[data-theme="night"] .chip.on { background: #23352B; }
 .hist-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; padding: 11px 0; border-bottom: 1px solid rgba(128,128,128,.12); font-size: 14px; }
 .hist-row .mono { text-align: right; color: var(--muted); }
 .back { display: inline-block; margin-top: 18px; }
+
+/* Chemins (espace praticien + catalogue + « Mes chemins ») */
+.path-card { width: 220px; align-items: flex-start; text-align: left; gap: 6px; }
+.path-card .resume-title { font-size: 16px; }
+.path-card .primary, .path-card .ghost { margin-top: 4px; }
+.path-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.catalogue-card { width: 240px; }
+
+.path-editor { margin-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+.exercise-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--card); border-radius: 14px; padding: 14px; box-shadow: var(--shadow);
+}
+.exercise-row .ex-index {
+  flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  display: grid; place-items: center; font-weight: 800; font-size: 12px; margin-top: 6px;
+}
+.exercise-row .ex-text { flex: 1; resize: vertical; min-height: 44px; }
+
+.add-exercise {
+  display: flex; align-items: flex-start; gap: 10px; margin-top: 4px;
+  background: var(--accent-soft); border-radius: 14px; padding: 14px;
+}
+.add-exercise textarea { flex: 1; resize: vertical; min-height: 44px; }
+
+.path-import { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 26px; }
 
 /* Modal */
 .modal-overlay {

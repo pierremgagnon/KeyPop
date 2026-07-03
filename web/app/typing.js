@@ -9,6 +9,7 @@ export class TypingSession {
     this.states = this.text.map(() => 'pending'); // pending | ok | err
     this.start = null;
     this.end = null;
+    this.keyTimes = [];               // horodatage de chaque frappe, pour le rythme moyen
   }
 
   get nextChar() { return this.text[this.pos]; }
@@ -18,7 +19,9 @@ export class TypingSession {
   // Modèle DYS : on reste sur le caractère tant qu'il n'est pas juste.
   press(char) {
     if (this.done) return 'ignore';
-    if (this.start == null) this.start = performance.now();
+    const now = performance.now();
+    if (this.start == null) this.start = now;
+    this.keyTimes.push({ time: now, pos: this.pos }); // pos = lettre visée par cette frappe
     const expected = this.text[this.pos];
     if (char === expected) {
       this.states[this.pos] = this.states[this.pos] === 'err' ? 'err' : 'ok';
@@ -55,8 +58,36 @@ export class TypingSession {
     return Math.max(0, this.pos * 10 - this.errors * 2);
   }
 
+  // Temps moyen entre deux frappes consécutives (rythme), en ms.
+  get avgKeyIntervalMs() {
+    if (this.keyTimes.length < 2) return 0;
+    let sum = 0;
+    for (let i = 1; i < this.keyTimes.length; i++) sum += this.keyTimes[i].time - this.keyTimes[i - 1].time;
+    return Math.round(sum / (this.keyTimes.length - 1));
+  }
+
+  // Intervalle le plus court/long entre deux frappes consécutives.
+  // pos/char désignent la lettre visée par la frappe qui clôt l'intervalle
+  // (utile pour repérer la lettre la plus rapide/lente à atteindre).
+  _extremeKeyInterval(isBetter) {
+    if (this.keyTimes.length < 2) return null;
+    let best = null;
+    for (let i = 1; i < this.keyTimes.length; i++) {
+      const ms = this.keyTimes[i].time - this.keyTimes[i - 1].time;
+      if (best === null || isBetter(ms, best.ms)) {
+        const pos = this.keyTimes[i].pos;
+        best = { ms: Math.round(ms), pos, char: this.text[pos] };
+      }
+    }
+    return best;
+  }
+  get fastestKeyInterval() { return this._extremeKeyInterval((a, b) => a < b); }
+  get slowestKeyInterval() { return this._extremeKeyInterval((a, b) => a > b); }
+
   // Résumé persistable pour l'historique / le bilan ergo.
   summary(meta = {}) {
+    const fastest = this.fastestKeyInterval;
+    const slowest = this.slowestKeyInterval;
     return {
       date: new Date().toISOString(),
       length: this.text.length,
@@ -64,6 +95,13 @@ export class TypingSession {
       accuracy: this.accuracy,
       errors: this.errors,
       score: this.score,
+      avgKeyIntervalMs: this.avgKeyIntervalMs,
+      fastestKeyIntervalMs: fastest ? fastest.ms : null,
+      fastestKeyPos: fastest ? fastest.pos : null,
+      fastestKeyChar: fastest ? fastest.char : null,
+      slowestKeyIntervalMs: slowest ? slowest.ms : null,
+      slowestKeyPos: slowest ? slowest.pos : null,
+      slowestKeyChar: slowest ? slowest.char : null,
       durationMs: Math.round(this.elapsedMs),
       ...meta
     };

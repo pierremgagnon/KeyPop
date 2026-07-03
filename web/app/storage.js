@@ -36,7 +36,9 @@ export function newProfile(name, classe) {
     theme: 'day',
     progress: { levelIndex: 2, lessonIndex: 0 }, // démarre sur « rangée du milieu »
     options: { audio: true, openDyslexic: false, keyboard: 'azerty-pc', size: '100' },
-    history: []
+    history: [],
+    paths: [],          // chemins importés (catalogue ou JSON) — voir paths.js
+    activePathId: null  // null = progression standard (LEVELS)
   };
 }
 
@@ -44,6 +46,33 @@ export function newProfile(name, classe) {
 const CUR_KEY = 'keypop.currentId';
 export function getCurrentId() { return localStorage.getItem(CUR_KEY) || null; }
 export function setCurrentId(id) { localStorage.setItem(CUR_KEY, id); }
+
+// ---------- Réglages & données propres à l'espace chemins (device local, hors profil) ----------
+
+const NARRATOR_KEY = 'keypop.narratorGlobal';
+export function getNarratorGlobal() {
+  const v = localStorage.getItem(NARRATOR_KEY);
+  return v === null ? true : v === '1';
+}
+export function setNarratorGlobal(on) { localStorage.setItem(NARRATOR_KEY, on ? '1' : '0'); }
+
+const PRACTITIONER_KEY = 'keypop.practitionerPaths';
+export function loadPractitionerPaths() {
+  try { return JSON.parse(localStorage.getItem(PRACTITIONER_KEY) || '[]'); }
+  catch (e) { console.warn('loadPractitionerPaths', e); return []; }
+}
+export function savePractitionerPaths(paths) {
+  localStorage.setItem(PRACTITIONER_KEY, JSON.stringify(paths));
+}
+
+const CATALOGUE_CACHE_KEY = 'keypop.catalogueCache';
+export function loadCatalogueCache() {
+  try { return JSON.parse(localStorage.getItem(CATALOGUE_CACHE_KEY) || '[]'); }
+  catch (e) { console.warn('loadCatalogueCache', e); return []; }
+}
+export function saveCatalogueCache(paths) {
+  localStorage.setItem(CATALOGUE_CACHE_KEY, JSON.stringify(paths));
+}
 
 export async function exportReport(profileId) {
   if (isTauri) return invoke('export_report', { profileId });

@@ -1,0 +1,13 @@
+{
+  "id": "rangee-du-milieu-ferme",
+  "title": "La ferme (rangée du milieu)",
+  "description": "Mots simples sur la rangée du milieu, avec narration pour les mots les plus longs.",
+  "version": 1,
+  "exercises": [
+    { "text": "la salade", "narrator": true },
+    { "text": "le jardin", "narrator": true },
+    { "text": "les dahlias", "narrator": true },
+    { "text": "le kilo de sel", "narrator": false },
+    { "text": "la fleur du jardin", "narrator": false }
+  ]
+}
