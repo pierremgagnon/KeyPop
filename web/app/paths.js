@@ -24,19 +24,58 @@ export function emptyPath(title, description) {
   };
 }
 
-export function addExercise(path, text, narrator = true) {
-  path.exercises.push({ text: String(text || '').trim(), narrator: !!narrator });
+// narratorLocked = false (par défaut) : le narrateur suit le réglage de l'élève (chip « Dictée
+// audio »), comme une leçon standard. narratorLocked = true : la valeur `narrator` est fixe et
+// non modifiable par l'élève pour cet exercice (verrouillage explicite par le praticien).
+export function addExercise(path, text, { narrator = true, narratorLocked = true, keyboardLocked = false, group = '', hint = '' } = {}) {
+  path.exercises.push({
+    text: String(text || '').trim(),
+    narrator: !!narrator, narratorLocked: !!narratorLocked, keyboardLocked: !!keyboardLocked,
+    group: String(group || ''), hint: String(hint || '')
+  });
   path.version = (path.version || 1) + 1;
   return path;
 }
 
-export function updateExercise(path, index, { text, narrator }) {
+export function updateExercise(path, index, { text, narrator, narratorLocked, keyboardLocked, group, hint }) {
   const ex = path.exercises[index];
   if (!ex) return path;
   if (text !== undefined) ex.text = String(text).trim();
   if (narrator !== undefined) ex.narrator = !!narrator;
+  if (narratorLocked !== undefined) ex.narratorLocked = !!narratorLocked;
+  if (keyboardLocked !== undefined) ex.keyboardLocked = !!keyboardLocked;
+  if (group !== undefined) ex.group = String(group || '');
+  if (hint !== undefined) ex.hint = String(hint || '');
   path.version = (path.version || 1) + 1;
   return path;
+}
+
+// Complète les champs manquants d'un chemin (rétrocompatibilité avec des brouillons créés avant
+// l'ajout de narratorLocked/group/hint), sans rien valider ni rejeter — pour des données locales
+// de confiance (brouillons du praticien). Pour de l'import externe, voir validatePathJson.
+export function normalizePathExercises(path) {
+  (path.exercises || []).forEach(ex => {
+    if (ex.narratorLocked === undefined) ex.narratorLocked = true; // ancien comportement : toujours verrouillé
+    if (ex.narrator === undefined) ex.narrator = true;
+    if (ex.keyboardLocked === undefined) ex.keyboardLocked = false;
+    if (ex.group === undefined) ex.group = '';
+    if (ex.hint === undefined) ex.hint = '';
+  });
+  return path;
+}
+
+// Regroupe les exercices consécutifs qui partagent le même `group` (chaîne vide = pas de
+// groupe). Sert à afficher une progression par « niveau » quand un chemin en définit
+// (le chemin par défaut le fait ; un chemin personnalisé peut le faire ou non).
+export function pathGroups(path) {
+  const groups = [];
+  (path.exercises || []).forEach((ex, i) => {
+    const title = ex.group || '';
+    const last = groups[groups.length - 1];
+    if (last && last.title === title) { last.endIndex = i; last.count++; }
+    else groups.push({ title, hint: ex.hint || '', startIndex: i, endIndex: i, count: 1 });
+  });
+  return groups;
 }
 
 export function removeExercise(path, index) {
@@ -59,17 +98,35 @@ export function exportPathBlob(path) {
   return new Blob([JSON.stringify(path, null, 2)], { type: 'application/json' });
 }
 
-// Vérifie la forme minimale d'un chemin importé (fichier JSON ou catalogue). Renvoie un chemin
-// normalisé ou lève une erreur explicite.
+// Vérifie la forme minimale d'un chemin importé (fichier .kp ou catalogue). Renvoie un chemin
+// normalisé ou lève une erreur portant une clé i18n (voir pathImport.* dans les fichiers de
+// langue) — ce module ne connaît pas la langue courante, c'est à l'appelant de traduire.
+function fail(code, params) {
+  const err = new Error(code);
+  err.i18nKey = code;
+  err.i18nParams = params;
+  throw err;
+}
+
 export function validatePathJson(obj) {
-  if (!obj || typeof obj !== 'object') throw new Error('Fichier invalide : ce n’est pas un chemin KeyPop.');
-  if (typeof obj.title !== 'string' || !obj.title.trim()) throw new Error('Ce chemin n’a pas de titre.');
-  if (!Array.isArray(obj.exercises) || !obj.exercises.length) throw new Error('Ce chemin ne contient aucun exercice.');
+  if (!obj || typeof obj !== 'object') fail('pathImport.errorInvalidFile');
+  if (typeof obj.title !== 'string' || !obj.title.trim()) fail('pathImport.errorMissingTitle');
+  if (!Array.isArray(obj.exercises) || !obj.exercises.length) fail('pathImport.errorNoExercises');
   const exercises = obj.exercises.map((ex, i) => {
     if (!ex || typeof ex.text !== 'string' || !ex.text.trim()) {
-      throw new Error(`Exercice ${i + 1} invalide (texte manquant).`);
+      fail('pathImport.errorInvalidExercise', { n: i + 1 });
     }
-    return { text: ex.text, narrator: ex.narrator !== false };
+    return {
+      text: ex.text,
+      narrator: ex.narrator !== false,
+      // Rétrocompatibilité : les chemins créés avant l'ajout de narratorLocked traitaient déjà
+      // `narrator` comme une valeur fixe non modifiable par l'élève — on préserve ce comportement
+      // pour eux (absent = verrouillé).
+      narratorLocked: ex.narratorLocked !== false,
+      keyboardLocked: ex.keyboardLocked === true,
+      group: typeof ex.group === 'string' ? ex.group : '',
+      hint: typeof ex.hint === 'string' ? ex.hint : ''
+    };
   });
   return {
     id: typeof obj.id === 'string' && obj.id ? obj.id : slugId(obj.title),
@@ -96,6 +153,14 @@ async function loadCatalogueFrom(baseUrl) {
 // Catalogue embarqué avec l'app (fonctionne hors-ligne, site statique ou webview Tauri).
 export function loadBundledCatalogue() {
   return loadCatalogueFrom('./catalogue');
+}
+
+// Le programme standard KeyPop lui-même : un chemin comme les autres (voir
+// web/catalogue/default.kp), importé automatiquement pour chaque nouveau profil — pas de
+// contenu de leçon en dur dans le code.
+export const DEFAULT_PATH_ID = 'default';
+export function loadDefaultPath() {
+  return fetchJson('./catalogue/default.kp').then(validatePathJson);
 }
 
 // Catalogue à jour, récupéré depuis le repo GitHub — jamais appelé automatiquement.

@@ -28,17 +28,32 @@ export async function saveProfiles(profiles) {
   }
 }
 
-export function newProfile(name, classe) {
+export function newProfile(name, lastName) {
   return {
     id: 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     name: name.trim(),
-    classe: (classe || '').trim(),
+    lastName: (lastName || '').trim(),
     theme: 'day',
-    progress: { levelIndex: 2, lessonIndex: 0 }, // démarre sur « rangée du milieu »
-    options: { audio: true, openDyslexic: false, keyboard: 'azerty-pc', size: '100' },
+    options: {
+      audio: true, openDyslexic: false, keyboard: false, size: '100',
+      keyboardLayout: null, // null = déduit de l'OS détecté (voir keyboards.js: layoutIdFor)
+      metronome: false, metronomeWpm: 10, metronomeAdaptive: false,
+      goalsEnabled: false, goalMinWpm: 10, goalMaxErrorPct: 90, goalMaxSlowdownPct: 45,
+      viewMode: 'mobile', // 'static' | 'mobile' | 'multiline' — voir Réglages > Vue de la leçon
+      textSize: 100,
+      onErrorMode: 'block', // 'block' | 'correct' | 'ignore' — voir Réglages > Continuer la leçon
+      backspaceEnabled: false,
+      timeLimitMin: null, saveIncompleteStats: true,
+      showResults: true, showRecommendations: true,
+      postLessonAction: 'continue', // 'continue' | 'stats' | 'logout'
+      saveStateOnClose: true,
+      showStatusBar: true, showTips: true, showHighlight: true, showToolbar: true,
+      showLessonPicker: true, showPause: true, showRestart: true
+    },
+    pendingExercise: null, // exercice interrompu à reprendre (voir saveStateOnClose)
     history: [],
-    paths: [],          // chemins importés (catalogue ou JSON) — voir paths.js
-    activePathId: null  // null = progression standard (LEVELS)
+    paths: [],           // chemins suivis (le programme par défaut + chemins importés) — voir paths.js
+    activePathId: null   // renseigné juste après la création (voir app.js: createProfileFlow)
   };
 }
 
@@ -48,13 +63,6 @@ export function getCurrentId() { return localStorage.getItem(CUR_KEY) || null; }
 export function setCurrentId(id) { localStorage.setItem(CUR_KEY, id); }
 
 // ---------- Réglages & données propres à l'espace chemins (device local, hors profil) ----------
-
-const NARRATOR_KEY = 'keypop.narratorGlobal';
-export function getNarratorGlobal() {
-  const v = localStorage.getItem(NARRATOR_KEY);
-  return v === null ? true : v === '1';
-}
-export function setNarratorGlobal(on) { localStorage.setItem(NARRATOR_KEY, on ? '1' : '0'); }
 
 const PRACTITIONER_KEY = 'keypop.practitionerPaths';
 export function loadPractitionerPaths() {
