@@ -172,7 +172,9 @@ export default {
     subtitle: 'These settings apply to this profile’s exercises.',
     keyboard: {
       title: 'Keyboard',
-      auto: 'Automatic detection'
+      auto: 'Automatic detection',
+      test: 'Keyboard test',
+      testHint: 'On: each keystroke briefly appears on screen so you can check what the computer receives.'
     },
     goals: {
       title: 'Lesson goals',

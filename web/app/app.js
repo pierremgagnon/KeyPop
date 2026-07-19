@@ -1,6 +1,6 @@
 // app.js — bootstrap, routage, rendu des écrans. Frontend partagé web/desktop.
 
-import { LAYOUTS, layoutIdFor, rowsForLayout, FINGER_COLORS, FINGER_LABELS, keyInfoForChar, detectLayout } from './keyboards.js';
+import { LAYOUTS, layoutIdFor, rowsForLayout, FINGER_COLORS, FINGER_LABELS, keyInfoForChar, detectLayout, resolveTypedChar } from './keyboards.js';
 import { TypingSession } from './typing.js';
 import {
   loadProfiles, saveProfiles, newProfile,
@@ -46,7 +46,9 @@ const state = {
   keyHandler: null,
   exerciseNarratorOn: null, // null = mode standard (suit p.options.audio), sinon bool imposé par l'exercice du chemin
   editingPathId: null,      // chemin en cours d'édition dans l'espace praticien
-  lessonTimerId: null       // setInterval de la limite de temps (Réglages > Durée de la leçon)
+  lessonTimerId: null,      // setInterval de la limite de temps (Réglages > Durée de la leçon)
+  keyTestOn: false,         // Réglages > Clavier > Test clavier (overlay de diagnostic, non persisté)
+  keyTestHandler: null
 };
 
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -85,6 +87,52 @@ async function ensureDefaultPath(p) {
 
 function detachKeys() {
   if (state.keyHandler) { document.removeEventListener('keydown', state.keyHandler); state.keyHandler = null; }
+  detachKeyTest();
+}
+
+// ---------- Réglages > Clavier > Test clavier ----------
+// Overlay de diagnostic : affiche brièvement chaque frappe — la touche telle que la disposition
+// choisie (PC/Mac/auto) la simule (voir keyboards.js: resolveTypedChar), pas le caractère brut
+// de l'OS — pour vérifier ce qu'une leçon recevrait vraiment avec cette disposition.
+let keyTestOverlayEl = null;
+let keyTestOverlayTimer = null;
+const KEY_TEST_IGNORED = new Set(['Shift', 'Control', 'Alt', 'Meta', 'AltGraph', 'CapsLock', 'OS', 'ContextMenu']);
+
+function keyTestLabel(e) {
+  if (e.key === 'Enter') return '⏎';
+  if (e.key === 'Backspace') return '⌫';
+  if (e.key === 'Tab') return '⇥';
+  if (e.key === 'Escape') return 'Esc';
+  const ch = resolveTypedChar(activeKeyboardLayoutId(), e);
+  if (ch === ' ') return '␣';
+  return ch != null ? ch : '·'; // '·' = combo non mappé sur la disposition simulée
+}
+
+function showKeyTestOverlay(e) {
+  if (KEY_TEST_IGNORED.has(e.key)) return; // touche morte seule (Maj, Ctrl…) : rien à montrer
+  if (!keyTestOverlayEl) {
+    keyTestOverlayEl = document.createElement('div');
+    keyTestOverlayEl.className = 'key-test-overlay';
+    document.body.appendChild(keyTestOverlayEl);
+  }
+  const layoutLabel = LAYOUTS[activeKeyboardLayoutId()].label;
+  keyTestOverlayEl.innerHTML = `<div class="key-test-char">${esc(keyTestLabel(e))}</div><div class="key-test-code">${esc(e.code)} · ${esc(layoutLabel)}</div>`;
+  keyTestOverlayEl.classList.remove('show');
+  void keyTestOverlayEl.offsetWidth; // force reflow pour rejouer la transition à chaque frappe
+  keyTestOverlayEl.classList.add('show');
+  clearTimeout(keyTestOverlayTimer);
+  keyTestOverlayTimer = setTimeout(() => keyTestOverlayEl.classList.remove('show'), 700);
+}
+
+function attachKeyTest() {
+  state.keyTestHandler = (e) => showKeyTestOverlay(e);
+  document.addEventListener('keydown', state.keyTestHandler);
+}
+
+function detachKeyTest() {
+  if (state.keyTestHandler) { document.removeEventListener('keydown', state.keyTestHandler); state.keyTestHandler = null; }
+  clearTimeout(keyTestOverlayTimer);
+  if (keyTestOverlayEl) { keyTestOverlayEl.remove(); keyTestOverlayEl = null; }
 }
 
 // ---------- Routage ----------
@@ -903,18 +951,20 @@ function onExerciseKey(e) {
   const s = state.session;
   const p = state.profile;
   if (!s || s.done || s.paused) return;
-  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.metaKey) return;
 
-  if (e.key === 'Backspace') {
+  if (e.key === 'Backspace' && !e.ctrlKey && !e.altKey) {
     if (!p.options.backspaceEnabled) return;
     e.preventDefault();
     if (s.backspace()) { renderTypeText(); renderKeyboard(); updateLive(); }
     return;
   }
 
-  let ch = e.key;
-  if (ch === 'Spacebar') ch = ' ';
-  if (ch.length !== 1 && ch !== ' ') return; // ignore touches non imprimables
+  // Résolu à partir du code physique + de la disposition choisie (PC/Mac/auto), pas du
+  // caractère réel produit par l'OS — permet de s'exercer sur une disposition simulée,
+  // différente du clavier physique de l'appareil (voir keyboards.js: resolveTypedChar).
+  const ch = resolveTypedChar(activeKeyboardLayoutId(), e);
+  if (ch == null) return; // touche non imprimable, ou combo non mappé sur la disposition simulée
   e.preventDefault();
 
   const res = s.press(ch);
@@ -1259,11 +1309,15 @@ function renderSettings() {
 
       <div class="panel">
         <div class="panel-title">${t('settings.keyboard.title')}</div>
-        ${settingRadioHtml('keyboardLayout', layoutValue, [
-          { value: '__auto__', label: t('settings.keyboard.auto') },
-          { value: 'azerty-pc', label: LAYOUTS['azerty-pc'].label },
-          { value: 'azerty-mac', label: LAYOUTS['azerty-mac'].label }
-        ])}
+        <div class="setting-radio-row">
+          ${settingRadioHtml('keyboardLayout', layoutValue, [
+            { value: '__auto__', label: t('settings.keyboard.auto') },
+            { value: 'azerty-pc', label: LAYOUTS['azerty-pc'].label },
+            { value: 'azerty-mac', label: LAYOUTS['azerty-mac'].label }
+          ])}
+          <button type="button" class="chip ${state.keyTestOn ? 'on' : ''}" id="keyTestToggle">⌨️ ${t('settings.keyboard.test')}</button>
+        </div>
+        ${state.keyTestOn ? `<p class="muted key-test-hint">${t('settings.keyboard.testHint')}</p>` : ''}
       </div>
 
       <div class="panel">
@@ -1370,7 +1424,14 @@ function renderSettings() {
     await persist();
     renderSettings();
   });
+  root.querySelector('#keyTestToggle').addEventListener('click', () => {
+    state.keyTestOn = !state.keyTestOn;
+    renderSettings();
+  });
   attachLangSwitcher();
+
+  detachKeyTest();
+  if (state.keyTestOn) attachKeyTest();
 }
 
 // ---------- Démarrage ----------

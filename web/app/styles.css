@@ -168,8 +168,22 @@ body[data-theme="night"] .chip.on { background: #23352B; }
 .setting-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
 .setting-number { width: 80px; border: 1.5px solid var(--tray-border); border-radius: 10px; background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-weight: 700; font-size: 14px; padding: 6px 10px; }
 .setting-radio { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.setting-radio-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.setting-radio-row .setting-radio { margin: 0; }
+.key-test-hint { margin-top: 6px; }
 .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 4px 20px; }
 @media (max-width: 600px) { .settings-grid { grid-template-columns: 1fr; } }
+
+/* Réglages > Clavier > Test clavier */
+.key-test-overlay {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(.85);
+  background: var(--card); color: var(--ink); border-radius: 20px; padding: 22px 34px;
+  box-shadow: var(--shadow); z-index: 200; text-align: center; pointer-events: none;
+  opacity: 0; transition: opacity .12s ease, transform .12s ease;
+}
+.key-test-overlay.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+.key-test-char { font-family: var(--font-display); font-weight: 600; font-size: 48px; line-height: 1; }
+.key-test-code { margin-top: 6px; font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
 .chart { display: flex; align-items: flex-end; gap: 8px; height: 130px; }
 .chart .bar { flex: 1; background: var(--accent); border-radius: 6px 6px 3px 3px; min-height: 6px; }
 .hist-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; padding: 11px 0; border-bottom: 1px solid rgba(128,128,128,.12); font-size: 14px; }

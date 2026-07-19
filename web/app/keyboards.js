@@ -41,6 +41,71 @@ export const LAYOUTS = {
 export function layoutIdFor(os) { return os === 'mac' ? 'azerty-mac' : 'azerty-pc'; }
 export function rowsForLayout(layoutId) { return (LAYOUTS[layoutId] || LAYOUTS['azerty-pc']).rows; }
 
+// ---------- Simulation du 3e niveau (AltGr PC / Option Mac) ----------
+// Les lettres, chiffres et la ponctuation de base sont identiques sur les deux dispositions
+// AZERTY (voir AZERTY_TOP4 plus haut) — seul le niveau 3 (symboles @ # { } [ ] etc.) diffère
+// vraiment entre un clavier PC (AltGr) et un clavier Mac (Option, souvent + Maj). Ces tables
+// permettent de simuler la disposition choisie dans les Réglages indépendamment du clavier
+// physique réel de l'appareil (ex. s'exercer au clavier PC sur un Mac, et inversement).
+// Format : code physique (KeyboardEvent.code, indépendant de l'OS) -> [sans Maj, avec Maj].
+// Simplification assumée : les touches mortes réelles (`, ^, ~) sont traitées comme des
+// caractères directs, sans composition avec la lettre suivante.
+const ALTGR_PC = {
+  Digit2: ['~'], Digit3: ['#'], Digit4: ['{'], Digit5: ['['], Digit6: ['|'],
+  Digit7: ['`'], Digit8: ['\\'], Digit9: ['^'], Digit0: ['@'],
+  Minus: [']'], Equal: ['}'],
+  KeyE: ['€'], KeyZ: ['«'], KeyX: ['»']
+};
+const ALTGR_MAC = {
+  // Sur clavier Apple, le « @ » est imprimé sur la touche <> (à gauche du Z, à côté de Maj) —
+  // pas sur la touche 0 comme sur PC — d'où l'entrée IntlBackslash plutôt que Digit0 ici.
+  IntlBackslash: ['@'], Digit3: [null, '#'], Digit5: ['{', '['], Minus: ['}', ']'],
+  KeyL: [null, '|'], Slash: [null, '\\'], KeyN: ['~'], KeyD: ['€'] // Option+$ (touche à droite de M)
+};
+const ALTGR_TABLES = { 'azerty-pc': ALTGR_PC, 'azerty-mac': ALTGR_MAC };
+
+// Symboles de niveau 3 pour lesquels PC et Mac peuvent diverger (touche physique et/ou
+// modificateur nécessaire). Sert à valider un caractère produit sans Alt/AltGr détecté
+// (voir resolveTypedChar) : certains claviers/sources de saisie réels les produisent avec
+// une combinaison différente de ce qu'on a supposé (Option seul plutôt qu'Option+Maj, etc.),
+// ce qui ne remonte pas forcément comme Alt enfoncé côté événement clavier.
+const DIVERGENT_CHARS = new Set(['@', '#', '{', '}', '[', ']', '|', '\\', '^', '~', '`', '€', '«', '»']);
+
+function altGrChar(layoutId, code, shift) {
+  const entry = (ALTGR_TABLES[layoutId] || ALTGR_TABLES['azerty-pc'])[code];
+  if (!entry) return null;
+  return (shift ? (entry[1] ?? entry[0]) : entry[0]) ?? null;
+}
+
+function altGrPressed(e) {
+  if (typeof e.getModifierState === 'function') {
+    try { if (e.getModifierState('AltGraph')) return true; } catch (err) { /* ignore */ }
+  }
+  return e.altKey; // Option (Mac) ou AltGr déjà détecté comme Alt (repli)
+}
+
+// Résout le caractère qu'une frappe doit produire pour la disposition choisie (layoutId =
+// 'azerty-pc' | 'azerty-mac'), à partir du code physique de la touche — pas du caractère que
+// l'OS a réellement produit. Renvoie null pour une touche non imprimable ou un combo non
+// mappé sur cette disposition (ex. AltGr+lettre qui ne produit rien).
+export function resolveTypedChar(layoutId, e) {
+  if (e.metaKey) return null;
+  const altgr = altGrPressed(e);
+  if (e.ctrlKey && !altgr) return null; // vrai raccourci Ctrl, pas un niveau 3
+  if (altgr) return altGrChar(layoutId, e.code, e.shiftKey);
+  let ch = e.key;
+  if (ch === 'Spacebar') ch = ' ';
+  if (ch.length !== 1 && ch !== ' ') return null;
+  if (DIVERGENT_CHARS.has(ch)) {
+    // Produit sans Alt/AltGr détecté — arrive quand le clavier physique ou la source de
+    // saisie réelle atteint ce symbole autrement que ce qu'on a supposé (ex. une seule
+    // touche au lieu d'Option+Maj). On ne l'accepte que si la disposition SIMULÉE l'attend
+    // vraiment sur cette touche physique ; sinon on l'ignore pour forcer le bon combo.
+    return altGrChar(layoutId, e.code, e.shiftKey) === ch ? ch : null;
+  }
+  return ch;
+}
+
 // Rétrocompatibilité : disposition par défaut.
 export const ROWS = LAYOUTS['azerty-pc'].rows;
 

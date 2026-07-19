@@ -172,7 +172,9 @@ export default {
     subtitle: 'Ces réglages s’appliquent aux exercices de ce profil.',
     keyboard: {
       title: 'Clavier',
-      auto: 'Détection automatique'
+      auto: 'Détection automatique',
+      test: 'Test clavier',
+      testHint: 'Activé : chaque frappe s’affiche brièvement à l’écran pour vérifier ce que l’ordinateur reçoit.'
     },
     goals: {
       title: 'Buts du cours',

@@ -1,0 +1,240 @@
+{
+  "id": "default",
+  "title": "Programme de base",
+  "description": "La progression standard KeyPop : de la position de repos aux phrases.",
+  "version": 1,
+  "exercises": [
+    {
+      "text": "fj fj fj fj",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée de repos",
+      "hint": "q s d f g · h j k l m"
+    },
+    {
+      "text": "jf jf fj fj jf fj fj jf",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée de repos",
+      "hint": "q s d f g · h j k l m"
+    },
+    {
+      "text": "fff jjj ddd kkk",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée de repos",
+      "hint": "q s d f g · h j k l m"
+    },
+    {
+      "text": "fj fj dk dk sl sl",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée de repos",
+      "hint": "q s d f g · h j k l m"
+    },
+    {
+      "text": "jk dl fg hj",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée de repos",
+      "hint": "q s d f g · h j k l m"
+    },
+    {
+      "text": "qsdf jklm qsdf jklm",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée de repos",
+      "hint": "q s d f g · h j k l m"
+    },
+    {
+      "text": "le re te",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du haut",
+      "hint": "a z e r t · y u i o p"
+    },
+    {
+      "text": "les tes des",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du haut",
+      "hint": "a z e r t · y u i o p"
+    },
+    {
+      "text": "arrete ta tarte",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du haut",
+      "hint": "a z e r t · y u i o p"
+    },
+    {
+      "text": "azerty poterie",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du haut",
+      "hint": "a z e r t · y u i o p"
+    },
+    {
+      "text": "les jolis dahlias du jardin",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du milieu",
+      "hint": "mots simples"
+    },
+    {
+      "text": "la salade du midi",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du milieu",
+      "hint": "mots simples"
+    },
+    {
+      "text": "le jardin fleuri",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du milieu",
+      "hint": "mots simples"
+    },
+    {
+      "text": "kilo dalia gladi",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du milieu",
+      "hint": "mots simples"
+    },
+    {
+      "text": "bon bien",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du bas",
+      "hint": "w x c v b n"
+    },
+    {
+      "text": "vache cube",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du bas",
+      "hint": "w x c v b n"
+    },
+    {
+      "text": "nuance bvcn",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du bas",
+      "hint": "w x c v b n"
+    },
+    {
+      "text": "cave bonne vie",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "La rangée du bas",
+      "hint": "w x c v b n"
+    },
+    {
+      "text": "cartable",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les mots",
+      "hint": "mots du quotidien"
+    },
+    {
+      "text": "recreation",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les mots",
+      "hint": "mots du quotidien"
+    },
+    {
+      "text": "ordinateur",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les mots",
+      "hint": "mots du quotidien"
+    },
+    {
+      "text": "la maison rouge",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les mots",
+      "hint": "mots du quotidien"
+    },
+    {
+      "text": "ch ph gn",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les bigrammes",
+      "hint": "ch ph gn ou"
+    },
+    {
+      "text": "chaque photo",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les bigrammes",
+      "hint": "ch ph gn ou"
+    },
+    {
+      "text": "la montagne",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les bigrammes",
+      "hint": "ch ph gn ou"
+    },
+    {
+      "text": "mon chien joue",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les bigrammes",
+      "hint": "ch ph gn ou"
+    },
+    {
+      "text": "le chat dort sur le tapis du salon.",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les phrases",
+      "hint": "texte suivi"
+    },
+    {
+      "text": "je prends mes notes en classe.",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les phrases",
+      "hint": "texte suivi"
+    },
+    {
+      "text": "la pluie tombe doucement ce matin.",
+      "narrator": true,
+      "narratorLocked": false,
+      "keyboardLocked": false,
+      "group": "Les phrases",
+      "hint": "texte suivi"
+    }
+  ]
+}

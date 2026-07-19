@@ -1,6 +1,6 @@
 [package]
 name = "keypop"
-version = "0.2.0"
+version = "0.3.0"
 description = "KeyPop — apprentissage de la dactylo adapté DYS"
 authors = ["KeyPop contributors"]
 license = "MIT"
